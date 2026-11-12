@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PulseMarkets — Real-time market intelligence platform. Live stock prices, news, insider trades, sentiment analysis, and paper trading.">
+  <meta name="theme-color" content="#0a0e1a">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="PulseMarkets — Market Intelligence">
+  <meta property="og:description" content="The Market Doesn't Wait. Neither Should You.">
+  <meta property="og:type" content="website">
+
+  <title>PulseMarkets ⚡ Market Intelligence</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- TradingView -->
+  <script src="https://s3.tradingview.com/tv.js" async></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TICKER TAPE
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="ticker-tape">
+  <div id="ticker-tape-inner">
+    <!-- JS populated -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════════ -->
+<header id="header">
+  <div class="header-inner">
+
+    <!-- Logo -->
+    <div class="logo" onclick="app.navigate('news')" style="cursor:pointer">
+      <div class="logo-mark">⚡</div>
+      <div>
+        <div class="logo-text">PulseMarkets</div>
+        <div class="logo-sub">Market Intelligence</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Search stocks… (⌘K)"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <span class="search-shortcut">⌘K</span>
+      <div id="search-results"></div>
+    </div>
+
+    <!-- Main Nav -->
+    <nav class="main-nav">
+      <button class="nav-item active" data-tab="news" onclick="app.navigate('news')">
+        <span class="nav-emoji">📰</span><span> News</span>
+      </button>
+      <button class="nav-item" data-tab="scanner" onclick="app.navigate('scanner')">
+        <span class="nav-emoji">📊</span><span> Scanner</span>
+      </button>
+      <button class="nav-item" data-tab="insider" onclick="app.navigate('insider')">
+        <span class="nav-emoji">🏛️</span><span> Insider</span>
+      </button>
+      <button class="nav-item" data-tab="sentiment" onclick="app.navigate('sentiment')">
+        <span class="nav-emoji">🧠</span><span> Sentiment</span>
+      </button>
+      <button class="nav-item" data-tab="sectors" onclick="app.navigate('sectors')">
+        <span class="nav-emoji">🏭</span><span> Sectors</span>
+      </button>
+      <button class="nav-item" data-tab="watchlist" onclick="app.navigate('watchlist')">
+        <span class="nav-emoji">⭐</span><span> Watchlist</span>
+      </button>
+      <button class="nav-item" data-tab="alerts" onclick="app.navigate('alerts')">
+        <span class="nav-emoji">🔔</span><span> Alerts</span>
+      </button>
+      <button class="nav-item" data-tab="paper" onclick="app.navigate('paper')">
+        <span class="nav-emoji">🎯</span><span> Trade</span>
+      </button>
+    </nav>
+
+    <!-- Market Status -->
+    <div class="market-status" id="market-status-badge">
+      <div class="status-dot" id="market-status-dot"></div>
+      <span id="market-status-text">—</span>
+    </div>
+
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     INDICES BAR
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="indices-bar">
+  <div id="market-indices">
+    <!-- JS populated -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN LAYOUT
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="main-layout">
+
+  <!-- ── Main Content ─────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- NEWS TAB -->
+    <div id="tab-news" class="tab-pane active">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">📰 Market News</h2>
+          <p class="section-subtitle">Breaking financial news, earnings, and market commentary</p>
+        </div>
+      </div>
+      <div class="news-filter-bar">
+        <button class="news-filter-btn active" data-cat="all" onclick="app.filterNews('all')">All</button>
+        <button class="news-filter-btn" data-cat="earnings" onclick="app.filterNews('earnings')">Earnings</button>
+        <button class="news-filter-btn" data-cat="macro" onclick="app.filterNews('macro')">Macro</button>
+        <button class="news-filter-btn" data-cat="crypto" onclick="app.filterNews('crypto')">Crypto</button>
+        <button class="news-filter-btn" data-cat="contracts" onclick="app.filterNews('contracts')">Contracts</button>
+        <button class="news-filter-btn" data-cat="corporate" onclick="app.filterNews('corporate')">Corporate</button>
+      </div>
+      <div id="news-grid"></div>
+    </div>
+
+    <!-- SCANNER TAB -->
+    <div id="tab-scanner" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">📊 Market Scanner</h2>
+          <p class="section-subtitle">Real-time top 25 gainers, losers, and most active stocks</p>
+        </div>
+      </div>
+      <div class="scanner-tabs">
+        <button class="scanner-tab active" data-view="gainers" onclick="app.setScannerView('gainers')">🟢 Top Gainers</button>
+        <button class="scanner-tab" data-view="losers" onclick="app.setScannerView('losers')">🔴 Top Losers</button>
+        <button class="scanner-tab" data-view="active" onclick="app.setScannerView('active')">🔥 Most Active</button>
+      </div>
+      <div id="scanner-table"></div>
+    </div>
+
+    <!-- INSIDER TAB -->
+    <div id="tab-insider" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🏛️ Insider Trading Tracker</h2>
+          <p class="section-subtitle">SEC Form 4 filings — follow smart money</p>
+        </div>
+      </div>
+      <div id="insider-container"></div>
+    </div>
+
+    <!-- SENTIMENT TAB -->
+    <div id="tab-sentiment" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🧠 Market Sentiment</h2>
+          <p class="section-subtitle">Social sentiment analysis and trending tickers</p>
+        </div>
+      </div>
+
+      <div class="trending-tickers-wrap">
+        <div class="trending-tickers-label">🔥 Trending Now</div>
+        <div id="trending-tickers"></div>
+      </div>
+
+      <div id="sentiment-grid"></div>
+    </div>
+
+    <!-- SECTORS TAB -->
+    <div id="tab-sectors" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🏭 Trending Industries</h2>
+          <p class="section-subtitle">Sector performance and market heat map</p>
+        </div>
+      </div>
+      <div id="sectors-grid"></div>
+    </div>
+
+    <!-- WATCHLIST TAB (full page) -->
+    <div id="tab-watchlist" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">⭐ My Watchlist</h2>
+          <p class="section-subtitle">Track your favorite stocks in one place</p>
+        </div>
+      </div>
+
+      <div class="alert-form-card" style="margin-top:0; margin-bottom:1.5rem">
+        <h3>Add to Watchlist</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ticker Symbol</label>
+            <input type="text" class="form-input" id="wl-add-input" placeholder="e.g. TSLA" autocomplete="off" style="text-transform:uppercase" maxlength="10">
+          </div>
+          <div class="form-group" style="justify-content: flex-end">
+            <button class="btn btn-primary" style="margin-top:auto" onclick="
+              const sym = document.getElementById('wl-add-input').value.trim();
+              if (sym) { const added = app.watchlist.add(sym); app.alertMgr._showToast(added ? '⭐ '+sym+' added to watchlist' : sym+' already in watchlist', added ? 'success' : 'info'); document.getElementById('wl-add-input').value=''; app.renderWatchlist(); }
+            ">Add Stock</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="watchlist-cards"></div>
+    </div>
+
+    <!-- ALERTS TAB -->
+    <div id="tab-alerts" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🔔 Price Alerts</h2>
+          <p class="section-subtitle">Get notified when stocks hit your target price</p>
+        </div>
+      </div>
+      <div id="alerts-list"></div>
+
+      <div class="alert-form-card">
+        <h3>➕ Create New Alert</h3>
+        <form id="alert-form">
+          <div class="form-row">
+            <div class="form-group suggestions-dropdown">
+              <label class="form-label">Ticker Symbol</label>
+              <input type="text" class="form-input" id="alert-symbol" placeholder="e.g. NVDA" required autocomplete="off" style="text-transform:uppercase" maxlength="10">
+              <div id="alert-symbol-suggestions"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Condition</label>
+              <select class="form-select" id="alert-condition">
+                <option value="above">📈 Price Above</option>
+                <option value="below">📉 Price Below</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Price</label>
+              <input type="number" class="form-input" id="alert-price" placeholder="e.g. 150.00" step="0.01" min="0.01" required>
+            </div>
+            <div class="form-group" style="justify-content:flex-end">
+              <button type="submit" class="btn btn-primary" style="margin-top:auto">🔔 Set Alert</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- PAPER TRADING TAB -->
+    <div id="tab-paper" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🎯 Paper Trading</h2>
+          <p class="section-subtitle">Practice trading with $100,000 of virtual money — zero risk</p>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <span class="info-box-icon">ℹ️</span>
+        <div>
+          <strong>Practice Mode Active.</strong> All trades here use virtual money. Prices update in real-time. Your portfolio is saved in your browser.
+        </div>
+      </div>
+
+      <div id="paper-portfolio"></div>
+
+      <div class="trade-form-card">
+        <h3>⚡ Execute Trade</h3>
+        <form id="trade-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Ticker Symbol</label>
+              <input type="text" class="form-input" id="trade-symbol" placeholder="e.g. AAPL" required autocomplete="off" style="text-transform:uppercase" maxlength="10">
+              <div id="trade-preview" style="margin-top:.4rem"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Action</label>
+              <select class="form-select" id="trade-action">
+                <option value="buy">📈 Buy</option>
+                <option value="sell">📉 Sell</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shares</label>
+              <input type="number" class="form-input" id="trade-shares" placeholder="e.g. 100" min="1" max="100000" required>
+              <div id="trade-cost" style="margin-top:.3rem; font-size:.8rem; color:var(--text-muted)"></div>
+            </div>
+            <div class="form-group" style="justify-content:flex-end">
+              <button type="submit" class="btn btn-green" style="margin-top:auto">Execute Trade</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── Sidebar ───────────────────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <!-- Watchlist -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">
+        <span class="sidebar-card-title">⭐ Watchlist</span>
+        <span class="sidebar-card-action" onclick="app.navigate('watchlist')">Manage →</span>
+      </div>
+      <div id="watchlist-cards"></div>
+      <div class="wl-add-form">
+        <input type="text" id="sidebar-wl-input" placeholder="Add ticker…" maxlength="10" style="text-transform:uppercase"
+          onkeydown="if(event.key==='Enter'){const s=this.value.trim();if(s){const a=app.watchlist.add(s);app.alertMgr._showToast(a?'⭐ '+s+' added':'Already in watchlist',a?'success':'info');this.value='';app.renderWatchlist();}}"
+        >
+        <button class="btn btn-sm btn-primary" onclick="const s=document.getElementById('sidebar-wl-input').value.trim();if(s){const a=app.watchlist.add(s);app.alertMgr._showToast(a?'⭐ '+s+' added':'Already in watchlist',a?'success':'info');document.getElementById('sidebar-wl-input').value='';app.renderWatchlist();}">+</button>
+      </div>
+    </div>
+
+    <!-- Top Gainers Widget -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">
+        <span class="sidebar-card-title">🟢 Top Gainers</span>
+        <span class="sidebar-card-action" onclick="app.navigate('scanner'); app.setScannerView('gainers')">More →</span>
+      </div>
+      <div id="sidebar-gainers"></div>
+    </div>
+
+    <!-- Top Losers Widget -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">
+        <span class="sidebar-card-title">🔴 Top Losers</span>
+        <span class="sidebar-card-action" onclick="app.navigate('scanner'); app.setScannerView('losers')">More →</span>
+      </div>
+      <div id="sidebar-losers"></div>
+    </div>
+
+  </aside>
+
+</div><!-- end #main-layout -->
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════════ -->
+<footer id="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">⚡ PulseMarkets</div>
+    <div class="footer-tagline">The Market Doesn't Wait. Neither Should You.</div>
+    <div class="footer-disclaimer">
+      Data displayed is for informational and educational purposes only. PulseMarkets does not provide investment advice.
+      Simulated prices are not real-time market data. Paper trading results do not reflect actual trading outcomes.
+      Always do your own research before making investment decisions.
+    </div>
+    <div class="footer-links">
+      <a href="#">Terms of Service</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Disclaimer</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="modal-overlay">
+  <div class="modal-window">
+    <div class="modal-header">
+      <span id="modal-title" class="modal-title"></span>
+      <button class="modal-close" onclick="app._closeModal()">×</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Scripts (order matters: data → features → app) -->
+<script src="js/market-data.js"></script>
+<script src="js/watchlist.js"></script>
+<script src="js/alerts.js"></script>
+<script src="js/paper-trading.js"></script>
+<script src="js/insider-trading.js"></script>
+<script src="js/app.js"></script>
+
+<!-- Inline boot extras (sidebar movers, market status) -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Market status badge
+    const dot  = document.getElementById('market-status-dot');
+    const text = document.getElementById('market-status-text');
+    if (dot && text) {
+      const open = new MarketData()._isMarketOpen();
+      dot.className  = `status-dot ${open ? 'open' : 'closed'}`;
+      text.textContent = open ? 'Market Open' : 'Market Closed';
+    }
+
+    // Render sidebar movers
+    function renderSidebarMovers() {
+      if (!window.app) return;
+      const gainersEl = document.getElementById('sidebar-gainers');
+      const losersEl  = document.getElementById('sidebar-losers');
+      if (gainersEl) {
+        gainersEl.innerHTML = app.data.getTopGainers(7).map((s, i) => `
+          <div class="mover-row" onclick="app.openStockDetail('${s.symbol}')">
+            <span class="mover-rank">${i+1}</span>
+            <span class="mover-sym">${s.symbol}</span>
+            <span class="mover-price">$${s.price.toFixed(2)}</span>
+            <span class="mover-pct pos">+${s.changePercent.toFixed(2)}%</span>
+          </div>`).join('');
+      }
+      if (losersEl) {
+        losersEl.innerHTML = app.data.getTopLosers(7).map((s, i) => `
+          <div class="mover-row" onclick="app.openStockDetail('${s.symbol}')">
+            <span class="mover-rank">${i+1}</span>
+            <span class="mover-sym">${s.symbol}</span>
+            <span class="mover-price">$${s.price.toFixed(2)}</span>
+            <span class="mover-pct neg">${s.changePercent.toFixed(2)}%</span>
+          </div>`).join('');
+      }
+    }
+
+    // Try immediately, then wait for app to boot
+    setTimeout(renderSidebarMovers, 300);
+    setTimeout(renderSidebarMovers, 1500);
+
+    // Live refresh movers
+    const moversInterval = setInterval(() => {
+      if (window.app) renderSidebarMovers();
+    }, 5000);
+  });
+</script>
+
+</body>
+</html>
